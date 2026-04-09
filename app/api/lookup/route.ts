@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import * as turf from '@turf/turf';
+import length from '@turf/length';
+import along from '@turf/along';
+import type { Feature, LineString } from 'geojson';
 
 export async function POST(request: Request) {
   try {
@@ -52,7 +54,7 @@ export async function POST(request: Request) {
     }
 
     const coordinates: number[][] = geometry.paths[0];
-    const geoJsonLine: turf.Feature<turf.LineString> = {
+    const geoJsonLine: Feature<LineString> = {
       type: 'Feature',
       properties: {},
       geometry: {
@@ -61,12 +63,12 @@ export async function POST(request: Request) {
       },
     };
 
-    const segmentLength = turf.length(geoJsonLine, { units: 'kilometers' });
+    const segmentLength = length(geoJsonLine, { units: 'kilometers' });
     const slkRange = attributes.END_SLK - attributes.START_SLK;
     const slkOffset = slk - attributes.START_SLK;
     const proportion = slkOffset / slkRange;
     const distanceAlong = segmentLength * proportion;
-    const point = turf.along(geoJsonLine, distanceAlong, { units: 'kilometers' });
+    const point = along(geoJsonLine, distanceAlong, { units: 'kilometers' });
 
     if (!point || !point.geometry || !point.geometry.coordinates) {
       return NextResponse.json(
