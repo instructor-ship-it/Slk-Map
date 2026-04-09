@@ -97,7 +97,7 @@ export default function Home() {
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Select Road (H0 or M0)
+              Select Road
             </label>
             {roadsLoading ? (
               <div className="animate-pulse bg-gray-200 h-10 rounded"></div>
