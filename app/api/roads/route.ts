@@ -14,7 +14,7 @@ export async function GET() {
       );
 
       const params = {
-        where: "ROAD LIKE 'H0%' OR ROAD LIKE 'M0%'",
+        where: "ROAD LIKE 'H%' OR ROAD LIKE 'M%'",
         outFields: 'ROAD,ROAD_NAME',
         returnGeometry: 'false',
         resultRecordCount: String(batchSize),

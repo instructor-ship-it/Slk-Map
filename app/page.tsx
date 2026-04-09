@@ -1,10 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Select from 'react-select';
 
 interface Road {
   roadId: string;
   roadName: string;
+}
+
+interface RoadOption {
+  value: string;
+  label: string;
 }
 
 interface LocationResult {
@@ -21,7 +27,7 @@ interface LocationResult {
 
 export default function Home() {
   const [roads, setRoads] = useState<Road[]>([]);
-  const [selectedRoad, setSelectedRoad] = useState<string>('');
+  const [selectedRoad, setSelectedRoad] = useState<RoadOption | null>(null);
   const [slk, setSlk] = useState<string>('');
   const [result, setResult] = useState<LocationResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -45,6 +51,11 @@ export default function Home() {
     fetchRoads();
   }, []);
 
+  const roadOptions: RoadOption[] = roads.map((road) => ({
+    value: road.roadId,
+    label: `${road.roadId} - ${road.roadName}`,
+  }));
+
   const handleLookup = async () => {
     if (!selectedRoad || !slk) {
       setError('Please select a road and enter SLK value.');
@@ -59,7 +70,7 @@ export default function Home() {
       const res = await fetch('/api/lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roadId: selectedRoad, slk: parseFloat(slk) }),
+        body: JSON.stringify({ roadId: selectedRoad.value, slk: parseFloat(slk) }),
       });
 
       const data = await res.json();
@@ -80,30 +91,35 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          SLK Location Finder
+          SLK Map Finder
         </h1>
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="road" className="block text-sm font-medium text-gray-700 mb-1">
-              Select Road (H0 or M0)
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Select Road (H or M)
             </label>
             {roadsLoading ? (
               <div className="animate-pulse bg-gray-200 h-10 rounded"></div>
             ) : (
-              <select
-                id="road"
+              <Select
+                options={roadOptions}
                 value={selectedRoad}
-                onChange={(e) => setSelectedRoad(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">-- Select a Road --</option>
-                {roads.map((road) => (
-                  <option key={road.roadId} value={road.roadId}>
-                    {road.roadId} - {road.roadName}
-                  </option>
-                ))}
-              </select>
+                onChange={(option) => setSelectedRoad(option)}
+                placeholder="Search for a road..."
+                isClearable
+                isSearchable
+                className="react-select-container"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    borderColor: '#d1d5db',
+                    '&:hover': { borderColor: '#9ca3af' },
+                    boxShadow: 'none',
+                  }),
+                }}
+              />
             )}
           </div>
 
