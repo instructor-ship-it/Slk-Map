@@ -9,8 +9,8 @@ export async function GET() {
     const params = {
       where: "ROAD LIKE 'H%' OR ROAD LIKE 'M%'",
       outFields: 'ROAD,ROAD_NAME',
-      returnDistinctValues: 'true',
-      orderByFields: 'ROAD',
+      returnGeometry: 'false',
+      resultRecordCount: '1000',
       f: 'json',
     };
 
@@ -28,13 +28,19 @@ export async function GET() {
       return NextResponse.json([]);
     }
 
-    const roads = data.features
-      .filter((feature: any) => feature.attributes.ROAD && feature.attributes.ROAD_NAME)
-      .map((feature: any) => ({
-        roadId: feature.attributes.ROAD,
-        roadName: feature.attributes.ROAD_NAME,
-      }))
-      .sort((a: any, b: any) => a.roadId.localeCompare(b.roadId));
+    // Deduplicate roads by roadId
+    const roadMap = new Map<string, string>();
+    data.features.forEach((feature: any) => {
+      if (feature.attributes.ROAD && feature.attributes.ROAD_NAME) {
+        if (!roadMap.has(feature.attributes.ROAD)) {
+          roadMap.set(feature.attributes.ROAD, feature.attributes.ROAD_NAME);
+        }
+      }
+    });
+
+    const roads = Array.from(roadMap.entries())
+      .map(([roadId, roadName]) => ({ roadId, roadName }))
+      .sort((a, b) => a.roadId.localeCompare(b.roadId));
 
     return NextResponse.json(roads);
   } catch (error: any) {
