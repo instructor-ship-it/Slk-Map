@@ -90,9 +90,10 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
+        <h1 className="text-2xl font-bold text-center text-gray-800">
           SLK Map Finder
         </h1>
+        <p className="text-sm text-gray-500 text-center mb-4">v1.0.0</p>
 
         <div className="space-y-4">
           <div>
