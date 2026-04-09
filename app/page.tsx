@@ -86,7 +86,7 @@ export default function Home() {
         <div className="space-y-4">
           <div>
             <label htmlFor="road" className="block text-sm font-medium text-gray-700 mb-1">
-              Select Road (H or M)
+              Select Road (H0 or M0)
             </label>
             {roadsLoading ? (
               <div className="animate-pulse bg-gray-200 h-10 rounded"></div>
