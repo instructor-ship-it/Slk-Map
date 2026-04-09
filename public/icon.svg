@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#2563eb" rx="64"/>
+  <g fill="white">
+    <!-- Road line -->
+    <path d="M80 400 Q200 300 256 256 Q320 200 432 112" stroke="white" stroke-width="24" fill="none" stroke-linecap="round"/>
+    <!-- Location pin -->
+    <path d="M256 80 C200 80 160 120 160 180 C160 260 256 340 256 340 C256 340 352 260 352 180 C352 120 312 80 256 80 Z M256 220 C234 220 216 202 216 180 C216 158 234 140 256 140 C278 140 296 158 296 180 C296 202 278 220 256 220 Z" fill="white"/>
+  </g>
+</svg>
