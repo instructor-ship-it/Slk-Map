@@ -6,11 +6,11 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SLK Map Finder",
-  description: "Find locations on Western Australian H and M roads by SLK value",
+  description: "Find locations on Western Australian H0 and M0 roads by SLK value",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "SLK Finder",
   },
   icons: {
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2563eb",
+  themeColor: "#111827",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

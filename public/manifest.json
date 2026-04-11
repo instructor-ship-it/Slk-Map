@@ -4,8 +4,8 @@
   "description": "Find locations on Western Australian H0 and M0 roads by SLK value",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#2563eb",
-  "theme_color": "#2563eb",
+  "background_color": "#111827",
+  "theme_color": "#111827",
   "orientation": "portrait-primary",
   "icons": [
     {
