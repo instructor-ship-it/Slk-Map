@@ -1,10 +1,10 @@
 {
   "name": "SLK Map Finder",
   "short_name": "SLK Finder",
-  "description": "Find locations on Western Australian H and M roads by SLK value",
+  "description": "Find locations on Western Australian H0 and M0 roads by SLK value",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f3f4f6",
+  "background_color": "#2563eb",
   "theme_color": "#2563eb",
   "orientation": "portrait-primary",
   "icons": [
