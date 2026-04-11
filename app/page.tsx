@@ -97,48 +97,101 @@ export default function Home() {
       <div className="bg-gray-50 rounded-t-2xl flex-1">
         <div className="max-w-md mx-auto px-4 py-5 space-y-4">
           
-          {/* Road Selector */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide px-3 pt-3 mb-1">
+          {/* Road Selector - Award Winning Design */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all">
+            <label className="flex items-center px-4 pt-3 pb-1 text-xs font-semibold text-blue-600 uppercase tracking-wider">
+              <svg className="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+              </svg>
               Select Road
             </label>
             {roadsLoading ? (
-              <div className="px-3 pb-3">
-                <div className="animate-pulse bg-gray-200 h-10 rounded-lg"></div>
+              <div className="px-4 pb-3">
+                <div className="animate-pulse bg-gray-100 h-12 rounded-xl"></div>
               </div>
             ) : (
-              <select
-                value={selectedRoadId}
-                onChange={(e) => setSelectedRoadId(e.target.value)}
-                className="w-full px-3 pb-3 text-gray-800 bg-transparent focus:outline-none text-base appearance-none cursor-pointer"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
-              >
-                <option value="">-- Select a road --</option>
-                {roads.map((road) => (
-                  <option key={road.roadId} value={road.roadId}>
-                    {road.roadId} - {road.roadName}
-                  </option>
-                ))}
-              </select>
+              <div className="relative px-4 pb-3">
+                <select
+                  value={selectedRoadId}
+                  onChange={(e) => setSelectedRoadId(e.target.value)}
+                  className={`
+                    w-full h-12 px-4 pr-10 rounded-xl text-base appearance-none cursor-pointer
+                    transition-all duration-200 ease-in-out
+                    ${selectedRoadId 
+                      ? 'bg-blue-50 text-gray-800 font-medium border-2 border-blue-500' 
+                      : 'bg-gray-50 text-gray-500 border-2 border-transparent hover:bg-gray-100 hover:border-gray-200'
+                    }
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                  `}
+                >
+                  <option value="" disabled>Select a road...</option>
+                  {roads.map((road) => (
+                    <option key={road.roadId} value={road.roadId}>
+                      {road.roadId} — {road.roadName}
+                    </option>
+                  ))}
+                </select>
+                {/* Custom Dropdown Arrow */}
+                <div className={`absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 ${selectedRoadId ? 'text-blue-500' : 'text-gray-400'}`}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+                {/* Selected Indicator */}
+                {selectedRoadId && (
+                  <div className="absolute right-14 top-1/2 -translate-y-1/2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Selected Road Preview */}
+            {selectedRoad && (
+              <div className="px-4 pb-3">
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl px-4 py-2.5 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-lg">{selectedRoad.roadId}</p>
+                      <p className="text-blue-100 text-sm truncate max-w-[200px]">{selectedRoad.roadName}</p>
+                    </div>
+                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
           {/* SLK Input */}
-          <div className="bg-white rounded-xl p-3 shadow-sm">
-            <label htmlFor="slk" className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <label htmlFor="slk" className="flex items-center px-4 pt-3 pb-1 text-xs font-semibold text-blue-600 uppercase tracking-wider">
+              <svg className="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+              </svg>
               Enter SLK
             </label>
-            <div className="flex items-center">
-              <input
-                type="number"
-                id="slk"
-                step="0.1"
-                value={slk}
-                onChange={(e) => setSlk(e.target.value)}
-                placeholder="e.g., 10.5"
-                className="flex-1 text-lg font-semibold text-gray-800 bg-transparent focus:outline-none placeholder-gray-300"
-              />
-              <span className="text-gray-400 text-sm ml-2">km</span>
+            <div className="px-4 pb-3">
+              <div className={`
+                flex items-center h-12 px-4 rounded-xl border-2 transition-all duration-200
+                ${slk 
+                  ? 'bg-blue-50 border-blue-500' 
+                  : 'bg-gray-50 border-transparent hover:bg-gray-100 hover:border-gray-200'
+                }
+              `}>
+                <input
+                  type="number"
+                  id="slk"
+                  step="0.1"
+                  value={slk}
+                  onChange={(e) => setSlk(e.target.value)}
+                  placeholder="e.g., 10.5"
+                  className="flex-1 text-lg font-semibold text-gray-800 bg-transparent focus:outline-none placeholder-gray-400"
+                />
+                <span className={`text-sm font-medium ml-2 ${slk ? 'text-blue-500' : 'text-gray-400'}`}>km</span>
+              </div>
             </div>
           </div>
 
@@ -146,82 +199,98 @@ export default function Home() {
           <button
             onClick={handleLookup}
             disabled={loading || !selectedRoadId || !slk}
-            className="w-full bg-blue-600 text-white py-3.5 px-6 rounded-xl font-semibold shadow-lg shadow-blue-600/30 active:bg-blue-700 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all"
+            className={`
+              w-full py-4 px-6 rounded-2xl font-bold text-lg
+              transition-all duration-300 ease-out transform
+              ${loading || !selectedRoadId || !slk
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-600/40 active:scale-[0.98] hover:shadow-xl hover:shadow-blue-600/50'
+              }
+            `}
           >
             {loading ? (
               <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 Looking up...
               </span>
             ) : (
-              'Find Location'
+              <span className="flex items-center justify-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Find Location
+              </span>
             )}
           </button>
 
           {/* Error */}
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm flex items-start space-x-2">
-              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 text-red-700 p-4 rounded-2xl text-sm flex items-start space-x-3">
+              <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
               <span>{error}</span>
             </div>
           )}
 
           {/* Result */}
           {result && (
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-3 py-2.5 flex items-center space-x-2">
-                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-                <span className="text-white font-semibold text-sm">Location Found</span>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-3 flex items-center space-x-2">
+                <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-white font-bold">Location Found</span>
               </div>
               
-              <div className="p-3 space-y-2">
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="text-gray-400 text-xs">Road</span>
-                    <p className="font-semibold text-gray-800">{result.roadId}</p>
+              <div className="p-4 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-50 rounded-xl p-3">
+                    <span className="text-gray-400 text-xs font-medium uppercase tracking-wide">Road</span>
+                    <p className="font-bold text-gray-800 text-lg">{result.roadId}</p>
                   </div>
-                  <div className="text-right">
-                    <span className="text-gray-400 text-xs">SLK</span>
-                    <p className="font-semibold text-gray-800">{result.slk} km</p>
+                  <div className="bg-gray-50 rounded-xl p-3 text-right">
+                    <span className="text-gray-400 text-xs font-medium uppercase tracking-wide">SLK</span>
+                    <p className="font-bold text-gray-800 text-lg">{result.slk} <span className="text-sm font-normal text-gray-500">km</span></p>
                   </div>
                 </div>
-                <div>
-                  <span className="text-gray-400 text-xs">Name</span>
-                  <p className="text-gray-700 text-sm">{result.roadName}</p>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <span className="text-gray-400 text-xs font-medium uppercase tracking-wide">Name</span>
+                  <p className="text-gray-800 font-medium">{result.roadName}</p>
                 </div>
-                <div>
-                  <span className="text-gray-400 text-xs">Coordinates</span>
-                  <p className="font-mono text-xs text-gray-600">
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <span className="text-gray-400 text-xs font-medium uppercase tracking-wide">Coordinates</span>
+                  <p className="font-mono text-sm text-gray-700">
                     {result.coordinates.lat.toFixed(6)}, {result.coordinates.lng.toFixed(6)}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 pt-2">
+                <div className="grid grid-cols-2 gap-3 pt-1">
                   <a
                     href={result.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-green-500 text-white py-2.5 px-3 rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors font-medium text-sm"
+                    className="flex items-center justify-center bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-4 rounded-xl font-semibold text-sm shadow-md shadow-green-500/30 active:scale-[0.98] transition-transform"
                   >
-                    <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
-                    Maps
+                    Google Maps
                   </a>
                   <a
                     href={result.streetViewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-purple-500 text-white py-2.5 px-3 rounded-lg hover:bg-purple-600 active:bg-purple-700 transition-colors font-medium text-sm"
+                    className="flex items-center justify-center bg-gradient-to-r from-purple-500 to-violet-500 text-white py-3 px-4 rounded-xl font-semibold text-sm shadow-md shadow-purple-500/30 active:scale-[0.98] transition-transform"
                   >
-                    <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
