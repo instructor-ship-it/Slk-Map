@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface Road {
   roadId: string;
@@ -27,6 +27,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [roadsLoading, setRoadsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Dropdown state
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchRoads() {
@@ -45,7 +50,31 @@ export default function Home() {
     fetchRoads();
   }, []);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const selectedRoad = roads.find(r => r.roadId === selectedRoadId);
+  
+  const filteredRoads = roads.filter(road => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    return road.roadId.toLowerCase().includes(query) || 
+           road.roadName.toLowerCase().includes(query);
+  });
+
+  const handleSelectRoad = (roadId: string) => {
+    setSelectedRoadId(roadId);
+    setDropdownOpen(false);
+    setSearchQuery('');
+  };
 
   const handleLookup = async () => {
     if (!selectedRoadId || !slk) {
@@ -94,59 +123,119 @@ export default function Home() {
       </div>
 
       {/* Content Card */}
-      <div className="bg-gray-50 rounded-t-2xl flex-1">
+      <div className="bg-gray-50 rounded-t-2xl flex-1 pb-8">
         <div className="max-w-md mx-auto px-4 py-5 space-y-4">
           
-          {/* Road Selector - Award Winning Design */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all">
+          {/* Custom Road Selector Dropdown */}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden" ref={dropdownRef}>
             <label className="flex items-center px-4 pt-3 pb-1 text-xs font-semibold text-blue-600 uppercase tracking-wider">
               <svg className="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
               </svg>
               Select Road
             </label>
+            
             {roadsLoading ? (
               <div className="px-4 pb-3">
                 <div className="animate-pulse bg-gray-100 h-12 rounded-xl"></div>
               </div>
             ) : (
-              <div className="relative px-4 pb-3">
-                <select
-                  value={selectedRoadId}
-                  onChange={(e) => setSelectedRoadId(e.target.value)}
+              <div className="px-4 pb-3 relative">
+                {/* Dropdown Trigger Button */}
+                <button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
                   className={`
-                    w-full h-12 px-4 pr-10 rounded-xl text-base appearance-none cursor-pointer
-                    transition-all duration-200 ease-in-out
+                    w-full h-12 px-4 pr-10 rounded-xl text-left flex items-center
+                    transition-all duration-200
                     ${selectedRoadId 
-                      ? 'bg-blue-50 text-gray-800 font-medium border-2 border-blue-500' 
-                      : 'bg-gray-50 text-gray-500 border-2 border-transparent hover:bg-gray-100 hover:border-gray-200'
+                      ? 'bg-blue-50 border-2 border-blue-500' 
+                      : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100 hover:border-gray-200'
                     }
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+                    ${dropdownOpen ? 'ring-2 ring-blue-500 border-blue-500' : ''}
                   `}
                 >
-                  <option value="" disabled>Select a road...</option>
-                  {roads.map((road) => (
-                    <option key={road.roadId} value={road.roadId}>
-                      {road.roadId} — {road.roadName}
-                    </option>
-                  ))}
-                </select>
-                {/* Custom Dropdown Arrow */}
-                <div className={`absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 ${selectedRoadId ? 'text-blue-500' : 'text-gray-400'}`}>
+                  {selectedRoadId ? (
+                    <span className="font-medium text-gray-800">{selectedRoad?.roadId} — {selectedRoad?.roadName}</span>
+                  ) : (
+                    <span className="text-gray-500">Select a road...</span>
+                  )}
+                </button>
+                
+                {/* Dropdown Arrow */}
+                <div className={`absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200 ${dropdownOpen ? 'rotate-180 text-blue-500' : selectedRoadId ? 'text-blue-500' : 'text-gray-400'}`}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
-                {/* Selected Indicator */}
-                {selectedRoadId && (
-                  <div className="absolute right-14 top-1/2 -translate-y-1/2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+
+                {/* Dropdown List */}
+                {dropdownOpen && (
+                  <div className="absolute left-4 right-4 top-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 max-h-64 overflow-hidden">
+                    {/* Search Input */}
+                    <div className="p-2 border-b border-gray-100">
+                      <div className="relative">
+                        <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <input
+                          type="text"
+                          placeholder="Search roads..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Road List */}
+                    <div className="overflow-y-auto max-h-52">
+                      {filteredRoads.length === 0 ? (
+                        <div className="py-8 text-center text-gray-400 text-sm">
+                          No roads found
+                        </div>
+                      ) : (
+                        filteredRoads.map((road) => (
+                          <button
+                            key={road.roadId}
+                            type="button"
+                            onClick={() => handleSelectRoad(road.roadId)}
+                            className={`
+                              w-full px-4 py-3 text-left flex items-center justify-between
+                              transition-colors
+                              ${selectedRoadId === road.roadId 
+                                ? 'bg-blue-50 text-blue-600' 
+                                : 'hover:bg-gray-50 active:bg-gray-100'
+                              }
+                            `}
+                          >
+                            <div>
+                              <span className="font-semibold">{road.roadId}</span>
+                              <span className="text-gray-400 mx-1">—</span>
+                              <span className="text-gray-600">{road.roadName}</span>
+                            </div>
+                            {selectedRoadId === road.roadId && (
+                              <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </button>
+                        ))
+                      )}
+                    </div>
+                    
+                    {/* Footer */}
+                    <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-center">
+                      <span className="text-xs text-gray-400">{filteredRoads.length} roads</span>
+                    </div>
                   </div>
                 )}
               </div>
             )}
+            
             {/* Selected Road Preview */}
-            {selectedRoad && (
+            {selectedRoad && !dropdownOpen && (
               <div className="px-4 pb-3">
                 <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl px-4 py-2.5 text-white">
                   <div className="flex items-center justify-between">
