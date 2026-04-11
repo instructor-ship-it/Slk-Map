@@ -1,11 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-
-// Dynamic import to avoid SSR issues
-const BottomSheet = dynamic(() => import('../components/BottomSheet'), { ssr: false });
-const RoadSelector = dynamic(() => import('../components/RoadSelector'), { ssr: false });
 
 interface Road {
   roadId: string;
@@ -26,13 +21,12 @@ interface LocationResult {
 
 export default function Home() {
   const [roads, setRoads] = useState<Road[]>([]);
-  const [selectedRoad, setSelectedRoad] = useState<Road | null>(null);
+  const [selectedRoadId, setSelectedRoadId] = useState<string>('');
   const [slk, setSlk] = useState<string>('');
   const [result, setResult] = useState<LocationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [roadsLoading, setRoadsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
   useEffect(() => {
     async function fetchRoads() {
@@ -51,8 +45,10 @@ export default function Home() {
     fetchRoads();
   }, []);
 
+  const selectedRoad = roads.find(r => r.roadId === selectedRoadId);
+
   const handleLookup = async () => {
-    if (!selectedRoad || !slk) {
+    if (!selectedRoadId || !slk) {
       setError('Please select a road and enter SLK value.');
       return;
     }
@@ -65,7 +61,7 @@ export default function Home() {
       const res = await fetch('/api/lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roadId: selectedRoad.roadId, slk: parseFloat(slk) }),
+        body: JSON.stringify({ roadId: selectedRoadId, slk: parseFloat(slk) }),
       });
 
       const data = await res.json();
@@ -84,7 +80,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-blue-600 to-blue-700">
-      {/* Header - Compact */}
+      {/* Header */}
       <div className="bg-blue-600 px-4 pt-8 pb-4 text-white">
         <div className="max-w-md mx-auto">
           <div className="flex items-center justify-center mb-1">
@@ -99,39 +95,35 @@ export default function Home() {
 
       {/* Content Card */}
       <div className="bg-gray-50 rounded-t-2xl flex-1">
-        <div className="max-w-md mx-auto px-3 py-4 space-y-3">
+        <div className="max-w-md mx-auto px-4 py-5 space-y-4">
           
-          {/* Road Selector Card */}
-          <button
-            onClick={() => setSheetOpen(true)}
-            className="w-full bg-white rounded-xl p-3 text-left shadow-sm active:bg-gray-50 transition-colors"
-          >
-            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
+          {/* Road Selector */}
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <label className="block text-xs font-medium text-gray-400 uppercase tracking-wide px-3 pt-3 mb-1">
               Select Road
             </label>
             {roadsLoading ? (
-              <div className="animate-pulse bg-gray-200 h-5 rounded w-3/4"></div>
-            ) : selectedRoad ? (
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-gray-800">{selectedRoad.roadId}</p>
-                  <p className="text-xs text-gray-500">{selectedRoad.roadName}</p>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+              <div className="px-3 pb-3">
+                <div className="animate-pulse bg-gray-200 h-10 rounded-lg"></div>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
-                <p className="text-gray-400 text-sm">Tap to select...</p>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
+              <select
+                value={selectedRoadId}
+                onChange={(e) => setSelectedRoadId(e.target.value)}
+                className="w-full px-3 pb-3 text-gray-800 bg-transparent focus:outline-none text-base appearance-none cursor-pointer"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+              >
+                <option value="">-- Select a road --</option>
+                {roads.map((road) => (
+                  <option key={road.roadId} value={road.roadId}>
+                    {road.roadId} - {road.roadName}
+                  </option>
+                ))}
+              </select>
             )}
-          </button>
+          </div>
 
-          {/* SLK Input Card */}
+          {/* SLK Input */}
           <div className="bg-white rounded-xl p-3 shadow-sm">
             <label htmlFor="slk" className="block text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">
               Enter SLK
@@ -153,8 +145,8 @@ export default function Home() {
           {/* Find Button */}
           <button
             onClick={handleLookup}
-            disabled={loading || !selectedRoad || !slk}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold shadow-lg shadow-blue-600/30 active:bg-blue-700 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all"
+            disabled={loading || !selectedRoadId || !slk}
+            className="w-full bg-blue-600 text-white py-3.5 px-6 rounded-xl font-semibold shadow-lg shadow-blue-600/30 active:bg-blue-700 disabled:bg-gray-300 disabled:shadow-none disabled:cursor-not-allowed transition-all"
           >
             {loading ? (
               <span className="flex items-center justify-center">
@@ -182,7 +174,7 @@ export default function Home() {
           {/* Result */}
           {result && (
             <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-3 py-2 flex items-center space-x-2">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 px-3 py-2.5 flex items-center space-x-2">
                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
@@ -242,20 +234,6 @@ export default function Home() {
 
         </div>
       </div>
-
-      {/* Bottom Sheet */}
-      <BottomSheet
-        isOpen={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-      >
-        <RoadSelector
-          roads={roads}
-          selectedRoad={selectedRoad}
-          onSelect={setSelectedRoad}
-          isOpen={sheetOpen}
-          onClose={() => setSheetOpen(false)}
-        />
-      </BottomSheet>
     </main>
   );
 }
