@@ -62,7 +62,7 @@ export default function Home() {
   }, []);
 
   // Get unique first letters for index
-  const roadIndex = [...new Set(roads.map(r => r.roadId[0]))].sort();
+  const roadIndex = Array.from(new Set(roads.map(r => r.roadId[0]))).sort();
   
   const selectedRoad = roads.find(r => r.roadId === selectedRoadId);
 
