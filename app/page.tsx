@@ -30,8 +30,8 @@ export default function Home() {
   
   // Dropdown state
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchRoads() {
@@ -61,19 +61,24 @@ export default function Home() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedRoad = roads.find(r => r.roadId === selectedRoadId);
+  // Get unique first letters for index
+  const roadIndex = [...new Set(roads.map(r => r.roadId[0]))].sort();
   
-  const filteredRoads = roads.filter(road => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return road.roadId.toLowerCase().includes(query) || 
-           road.roadName.toLowerCase().includes(query);
-  });
+  const selectedRoad = roads.find(r => r.roadId === selectedRoadId);
+
+  const scrollToLetter = (letter: string) => {
+    const firstRoad = roads.find(r => r.roadId.startsWith(letter));
+    if (firstRoad && listRef.current) {
+      const element = document.getElementById(`road-${firstRoad.roadId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   const handleSelectRoad = (roadId: string) => {
     setSelectedRoadId(roadId);
     setDropdownOpen(false);
-    setSearchQuery('');
   };
 
   const handleLookup = async () => {
@@ -118,7 +123,7 @@ export default function Home() {
             </svg>
             <h1 className="text-xl font-bold">SLK Map Finder</h1>
           </div>
-          <p className="text-center text-gray-500 text-xs">v1.1.0</p>
+          <p className="text-center text-gray-500 text-xs">v1.2.0</p>
         </div>
       </div>
 
@@ -126,7 +131,7 @@ export default function Home() {
       <div className="bg-gray-900">
         <div className="max-w-md mx-auto px-4 py-5 space-y-4">
           
-          {/* Road Selector - Matching roadfinder style */}
+          {/* Road Selector - Keyboard Style Picker */}
           <div ref={dropdownRef}>
             <label className="block text-sm text-gray-400 mb-1">Road ID</label>
             {roadsLoading ? (
@@ -152,47 +157,57 @@ export default function Home() {
                   </svg>
                 </button>
 
-                {/* Dropdown Content */}
+                {/* Dropdown Content - No Search */}
                 {dropdownOpen && (
                   <div className="absolute z-50 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl overflow-hidden">
-                    {/* Search */}
-                    <div className="p-2 border-b border-gray-700">
-                      <input
-                        type="text"
-                        placeholder="Search roads..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-gray-900 border border-gray-700 text-white rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        autoFocus
-                      />
-                    </div>
-                    
-                    {/* Road List */}
-                    <div className="max-h-64 overflow-y-auto">
-                      {filteredRoads.length === 0 ? (
-                        <div className="py-4 text-center text-gray-500 text-sm">No roads found</div>
-                      ) : (
-                        filteredRoads.map((road) => (
+                    {/* Road List with Index */}
+                    <div className="relative flex">
+                      {/* Scrollable Road List */}
+                      <div 
+                        ref={listRef}
+                        className="flex-1 max-h-72 overflow-y-auto overscroll-contain"
+                        style={{ scrollBehavior: 'smooth' }}
+                      >
+                        {roads.length === 0 ? (
+                          <div className="py-4 text-center text-gray-500 text-sm">No roads found</div>
+                        ) : (
+                          roads.map((road) => (
+                            <button
+                              key={road.roadId}
+                              id={`road-${road.roadId}`}
+                              type="button"
+                              onClick={() => handleSelectRoad(road.roadId)}
+                              className={`w-full px-3 py-3 text-left flex items-center justify-between text-white active:bg-gray-600 ${
+                                selectedRoadId === road.roadId ? 'bg-blue-900/50' : ''
+                              }`}
+                            >
+                              <span>
+                                <span className="font-mono text-blue-400">{road.roadId}</span>
+                                <span className="ml-2 text-gray-300 text-sm">{road.roadName}</span>
+                              </span>
+                              {selectedRoadId === road.roadId && (
+                                <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                      
+                      {/* Alphabetical Index Bar */}
+                      <div className="absolute right-0 top-0 bottom-0 w-6 bg-gray-800/90 flex flex-col items-center justify-center py-1">
+                        {roadIndex.map((letter) => (
                           <button
-                            key={road.roadId}
+                            key={letter}
                             type="button"
-                            onClick={() => handleSelectRoad(road.roadId)}
-                            className={`w-full px-3 py-3 text-left flex items-center justify-between text-white focus:bg-gray-700 ${
-                              selectedRoadId === road.roadId ? 'bg-gray-700' : 'hover:bg-gray-700'
-                            }`}
+                            onClick={() => scrollToLetter(letter)}
+                            className="text-xs font-bold text-blue-400 hover:text-white active:text-white px-1 py-0.5"
                           >
-                            <span>
-                              <span className="font-mono text-blue-400">{road.roadId}</span>
-                              <span className="ml-2 text-gray-300">{road.roadName}</span>
-                            </span>
-                            {selectedRoadId === road.roadId && (
-                              <svg className="w-4 h-4 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            )}
+                            {letter}
                           </button>
-                        ))
-                      )}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -217,7 +232,7 @@ export default function Home() {
           <button
             onClick={handleLookup}
             disabled={loading || !selectedRoadId || !slk}
-            className="w-full h-12 text-lg bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
+            className="w-full h-12 text-lg bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:bg-gray-700 disabled:text-gray-500 text-white rounded-lg font-medium transition-colors"
           >
             {loading ? 'Looking up...' : 'Find Location'}
           </button>
@@ -266,7 +281,7 @@ export default function Home() {
                     href={result.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-green-600 hover:bg-green-700 text-white py-2 px-3 rounded font-medium text-sm transition-colors"
+                    className="flex items-center justify-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-2 px-3 rounded font-medium text-sm transition-colors"
                   >
                     <svg className="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
@@ -277,7 +292,7 @@ export default function Home() {
                     href={result.streetViewUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white py-2 px-3 rounded font-medium text-sm transition-colors"
+                    className="flex items-center justify-center bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white py-2 px-3 rounded font-medium text-sm transition-colors"
                   >
                     <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
