@@ -1,17 +1,14 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 
 interface BottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
   children: React.ReactNode;
 }
 
-export default function BottomSheet({ isOpen, onClose, title, children }: BottomSheetProps) {
-  const sheetRef = useRef<HTMLDivElement>(null);
-
+export default function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       onClose();
@@ -44,32 +41,24 @@ export default function BottomSheet({ isOpen, onClose, title, children }: Bottom
     >
       {/* Backdrop */}
       <div
-        className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${
           isOpen ? 'opacity-100' : 'opacity-0'
         }`}
       />
       
-      {/* Sheet */}
+      {/* Sheet - Full screen on mobile */}
       <div
-        ref={sheetRef}
-        className={`absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl transform transition-transform duration-300 ease-out max-h-[85vh] flex flex-col ${
+        className={`absolute bottom-0 left-0 right-0 top-20 sm:top-auto sm:max-h-[90vh] bg-white sm:rounded-t-3xl shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
-        {/* Drag Handle */}
-        <div className="flex justify-center py-3 cursor-pointer" onClick={onClose}>
+        {/* Drag Handle - Hidden on mobile, visible on larger screens */}
+        <div className="hidden sm:flex justify-center pt-3 pb-2 cursor-pointer" onClick={onClose}>
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
         </div>
         
-        {/* Title */}
-        {title && (
-          <div className="px-4 pb-3 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-          </div>
-        )}
-        
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-hidden flex flex-col">
           {children}
         </div>
       </div>
