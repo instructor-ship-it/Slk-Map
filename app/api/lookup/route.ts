@@ -79,9 +79,9 @@ export async function POST(request: Request) {
 
     const [lng, lat] = point.geometry.coordinates;
 
-    const googleMapsUrl = `https://www.google.com/maps?q=${lat.toFixed(6)},${lng.toFixed(6)}`;
+    const googleMapsUrl = `https://www.google.com/maps/place/${lat.toFixed(6)},${lng.toFixed(6)}/@${lat.toFixed(6)},${lng.toFixed(6)},15z`;
     const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat.toFixed(6)},${lng.toFixed(6)}`;
-    const satelliteUrl = `https://www.google.com/maps/@${lat.toFixed(6)},${lng.toFixed(6)},18z/data=!3m1!1e3`;
+    const satelliteUrl = `https://www.google.com/maps/place/${lat.toFixed(6)},${lng.toFixed(6)}/@${lat.toFixed(6)},${lng.toFixed(6)},18z/data=!3m1!1e3`;
 
     return NextResponse.json({
       roadId: attributes.ROAD,
